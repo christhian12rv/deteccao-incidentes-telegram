@@ -22,7 +22,7 @@ export class TelegramService {
     private readonly prisma: PrismaService,
     private readonly telegramMessageService: TelegramMessageService
   ) {
-    this.storeSession = new StoreSession(config.telegramStoreSession);
+    this.storeSession = new StoreSession('telegram_session');
     this.client = new TelegramClient(
       this.storeSession,
       this.apiId,
