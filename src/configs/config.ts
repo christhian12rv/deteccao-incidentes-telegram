@@ -7,4 +7,5 @@ export default {
   telegramApiHash: process.env.TELEGRAM_API_HASH,
   telegramStoreSession: process.env.TELEGRAM_STORE_SESSION,
   lastMessagesLimit: Number(process.env.LAST_MESSAGES_LIMIT),
+  port: Number(process.env.PORT),
 };
