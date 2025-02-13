@@ -33,7 +33,7 @@ export class TelegramService {
     );
   }
 
-  @Cron('*/15 * * * *')
+  @Cron(config.startMessagesCapturingCronJobExpression)
   async startMessagesCapture(): Promise<void> {
     this.logger.log(await this.prisma.telegramChannel.findMany());
     await this.connectTelegramAccount();
