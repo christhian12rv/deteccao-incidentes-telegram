@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { TelegramClient } from 'telegram';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Api, TelegramClient } from 'telegram';
 import { StoreSession } from 'telegram/sessions';
 import input from 'input';
 import * as moment from 'moment-timezone';
@@ -8,6 +8,9 @@ import { PrismaService } from 'src/database/prisma.service';
 import { CreateTelegramMessageDto } from 'src/telegram-message/dtos/CreateTelegramMessageDto';
 import { TelegramMessageService } from 'src/telegram-message/telegram-message.service';
 import { Cron } from '@nestjs/schedule';
+import { TelegramJoinChannelDto } from './dtos/TelegramJoinChannelDto';
+import { CreateTelegramChannelDto } from '../telegram-channel/dtos/CreateTelegramChannelDto';
+import { TelegramChannelService } from 'src/telegram-channel/telegram-channel.service';
 
 @Injectable()
 export class TelegramService {
@@ -20,7 +23,8 @@ export class TelegramService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly telegramMessageService: TelegramMessageService
+    private readonly telegramMessageService: TelegramMessageService,
+    private readonly telegramChannelService: TelegramChannelService,
   ) {
     this.storeSession = new StoreSession('telegram_session');
     this.client = new TelegramClient(
@@ -29,20 +33,19 @@ export class TelegramService {
       this.apiHash,
       {
         connectionRetries: 5,
-      }
+      },
     );
   }
 
-  @Cron(config.startMessagesCapturingCronJobExpression)
-  async startMessagesCapture(): Promise<void> {
-    this.logger.log(await this.prisma.telegramChannel.findMany());
+  @Cron(config.startMessagesCaptureCronJobExpression)
+  public async startMessagesCapture(): Promise<string> {
     await this.connectTelegramAccount();
 
     const channels = await this.prisma.telegramChannel.findMany();
 
     for (const channel of channels) {
       this.logger.log(
-        `Capturing last ${config.lastMessagesLimit} messages of channel ${channel.name} (${channel.username})...`
+        `Capturing last ${config.lastMessagesLimit} messages of channel ${channel.name} (${channel.username})...`,
       );
 
       let messages = await this.client.getMessages(channel.username, {
@@ -63,7 +66,7 @@ export class TelegramService {
           (message) =>
             moment(new Date(message.date * 1000))
               .tz('America/Sao_Paulo')
-              .toDate() > lastMessageSent.sendingDate
+              .toDate() > lastMessageSent.sendingDate,
         );
       }
 
@@ -91,13 +94,15 @@ export class TelegramService {
           await this.telegramMessageService.create(telegramMessage);
         } catch (error) {
           this.logger.error(
-            `There was an error saving message of id ${telegramMessage.telegramId} from ${channel.name} channel`
+            `There was an error saving message of id ${telegramMessage.telegramId} from ${channel.name} channel`,
           );
         }
       }
     }
 
     this.logger.log('Finished messages capturing');
+
+    return 'Finished messages capturing';
   }
 
   private async connectTelegramAccount(): Promise<void> {
@@ -124,5 +129,40 @@ export class TelegramService {
       .replace(/\s+/g, ' ')
       .trim();
     return cleanedMessage;
+  }
+
+  public async joinChannel(body: TelegramJoinChannelDto): Promise<any> {
+    const channelExists = await this.prisma.telegramChannel.findFirst({
+      where: {
+        username: body.channelUsername,
+      },
+    });
+
+    if (!!channelExists) {
+      throw new BadRequestException('The bot is already part of this channel');
+    }
+    
+    await this.connectTelegramAccount();
+
+    let channel: Api.TypeUpdates = null;
+
+    try {
+      channel = await this.client.invoke(
+        new Api.channels.JoinChannel({
+          channel: body.channelUsername,
+        }),
+      );
+    } catch (error) {}
+
+    if (!channel) {
+      throw new BadRequestException('Channel not found');
+    }
+
+    const newChannel: CreateTelegramChannelDto = {
+      name: channel.toJSON()['chats'][0].title,
+      username: body.channelUsername,
+    };
+
+    return await this.telegramChannelService.create(newChannel);
   }
 }

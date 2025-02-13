@@ -7,5 +7,6 @@ export default {
   telegramApiId: Number(process.env.TELEGRAM_API_ID),
   telegramApiHash: process.env.TELEGRAM_API_HASH,
   lastMessagesLimit: Number(process.env.LAST_MESSAGES_LIMIT),
-  startMessagesCapturingCronJobExpression: process.env.START_MESSAGES_CAPTURING_CRONJOB_EXPRESSION,
+  startMessagesCaptureCronJobExpression:
+    process.env.START_MESSAGES_CAPTURE_CRONJOB_EXPRESSION,
 };

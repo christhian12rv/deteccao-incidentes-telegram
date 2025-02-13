@@ -7,7 +7,7 @@ declare global {
       TELEGRAM_API_ID: number;
       TELEGRAM_API_HASH: string;
       LAST_MESSAGES_LIMIT: number;
-      START_MESSAGES_CAPTURING_CRONJOB_EXPRESSION: string;
+      START_MESSAGES_CAPTURE_CRONJOB_EXPRESSION: string;
     }
   }
 }

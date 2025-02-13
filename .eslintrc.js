@@ -18,41 +18,42 @@ module.exports = {
   ignorePatterns: ['.eslintrc.js'],
   rules: {
     "indent": ["error", 2, { "ignoredNodes": ["PropertyDefinition"] }],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
-        "quotes": [
-            "error",
-            "single"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ],
-        "comma-dangle": [
-            "error", "always-multiline"
-        ],
-        "brace-style": [
-            "error",
-            "1tbs",
-            {
-                "allowSingleLine": false
-            }
-        ],
-        "object-curly-spacing": [
-            "error",
-            "always"
-        ],
-        "no-console": 2,
-        "curly": [
-            "error",
-            "all"
-        ],
-        "@typescript-eslint/explicit-function-return-type": 2,
-        "arrow-body-style": [
-            "error",
-            "as-needed"
-        ]
+    "linebreak-style": [
+        "error",
+        "unix"
+    ],
+    "quotes": [
+        "error",
+        "single"
+    ],
+    "semi": [
+        "error",
+        "always"
+    ],
+    "comma-dangle": [
+        "error", "always-multiline"
+    ],
+    "brace-style": [
+        "error",
+        "1tbs",
+        {
+            "allowSingleLine": false
+        }
+    ],
+    "object-curly-spacing": [
+        "error",
+        "always"
+    ],
+    "no-console": 2,
+    "curly": [
+        "error",
+        "all"
+    ],
+    "@typescript-eslint/explicit-function-return-type": 2,
+    "arrow-body-style": [
+        "error",
+        "as-needed"
+    ],
+    'prettier/prettier': 0,
   },
 };
