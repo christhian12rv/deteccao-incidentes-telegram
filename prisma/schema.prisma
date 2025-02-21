@@ -20,6 +20,8 @@ model TelegramChannel {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   telegramMessage       TelegramMessage[]
+
+  @@map("telegram_channel")
 }
 
 model TelegramMessage {
@@ -31,4 +33,6 @@ model TelegramMessage {
   telegramChannel       TelegramChannel @relation(fields: [telegramChannelId], references: [id])
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+
+  @@map("telegram_message")
 }
